@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment: 
+      - POSTGRES_PASSWORD
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    image: sujeetkp/flaskapp:latest 
+    volumes: 
+      - static_files:/flaskapp/flaskblog/static
+    environment: 
+      - EMAIL_USER
+      - EMAIL_PASS
+      - SECRET_KEY
+      - SQLALCHEMY_TRACK_MODIFICATIONS
+      - MAIL_SERVER
+      - MAIL_PORT
+      - MAIL_USE_TLS
+      - DB_SERVER
+      - DB_PORT
+      - DATABASE_NAME
+      - DB_USERNAME
+      - DB_PASSWORD
+    depends_on:
+      - db 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - static_files:/flaskapp/flaskblog/static
+    depends_on:
+      - web
+volumes: 
+  postgres_data:
+  static_files:
