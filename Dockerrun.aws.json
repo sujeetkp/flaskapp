@@ -1,0 +1,70 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "db",
+            "image": "postgres",
+            "hostname": "db",
+            "essential": false,
+            "memory": 128,
+            "mountPoints": [
+                {
+                    "sourceVolume": "postgres_data",
+                    "containerPath": "/var/lib/postgresql/data"
+                }
+            ]
+        },
+        {
+            "name": "web",
+            "image": "sujeetkp/flaskapp:latest",
+            "hostname": "web",
+            "essential": false,
+            "memory": 256,
+            "links": ["db"],
+            "mountPoints": [
+                {
+                    "sourceVolume": "static_files",
+                    "containerPath": "/flaskapp/flaskblog/static"
+                }
+            ]
+        },
+        {
+            "name": "nginx",
+            "image": "sujeetkp/flask_nginx",
+            "essential": true,
+            "portMappings":[
+                {
+                    "hostPort": 80,
+                    "containerPort":80
+                }
+            ],
+            "links": ["web"],
+            "memory": 128,
+            "mountPoints": [
+                {
+                    "sourceVolume": "static_files",
+                    "containerPath": "/flaskapp/flaskblog/static"
+                }
+            ]
+        }
+    ],
+    "volumes": [
+        {
+            "name": "postgres_data",
+            "dockerVolumeConfiguration" : {
+                "scope": "shared",
+                "autoprovision": true,
+                "driver": "local"
+            }
+        },
+        {
+            "name": "static_files",
+            "dockerVolumeConfiguration" : {
+                "scope": "shared",
+                "autoprovision": true,
+                "driver": "local"
+            }
+        }
+    ]
+}
+
