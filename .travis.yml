@@ -1,0 +1,32 @@
+sudo: required
+language: generic
+services:
+    - docker
+
+
+before_install:
+    - echo "Installed Services and other packages !!!"
+
+script:
+    - echo "Test Successful !!!"
+
+after_success:
+    - docker build -t sujeetkp/flaskapp:latest .
+    - docker build -t sujeetkp/flask_nginx:latest ./nginx
+
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+    - docker push sujeetkp/flaskapp:latest
+    - docker push sujeetkp/flask_nginx:latest
+
+deploy:
+    edge: true
+    provider: elasticbeanstalk
+    region: ap-south-1
+    app: Application-Flask
+    env: ApplicationFlask-env
+    bucket_name: elasticbeanstalk-ap-south-1-211307162405
+    on:
+        branch: master
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
